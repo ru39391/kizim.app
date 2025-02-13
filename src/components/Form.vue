@@ -1,14 +1,55 @@
 <template>
   <div class="input-group mb-3">
-    <input type="text" class="form-control" placeholder="ID видео" aria-label="ID видео" aria-describedby="button-addon2">
-    <button class="btn btn-primary" type="button" id="button-addon2">Сохранить видео</button>
+    <input
+      v-model="videoId"
+      type="text"
+      class="form-control"
+      placeholder="ID видео"
+      aria-label="ID видео"
+      aria-describedby="button"
+      :disabled="isLoading"
+    >
+    <button
+      class="btn btn-primary"
+      type="button"
+      id="button"
+      :disabled="isLoading"
+      @click="createVideoItem"
+    >
+      Сохранить видео
+    </button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
+import { useVideoStore } from '../store/modules/video';
 
 export default defineComponent({
   name: 'Form',
+
+  setup() {
+    const videoId = ref('');
+    const videoStore = useVideoStore();
+    const isLoading = computed(() => videoStore.isLoading);
+
+    const createVideoItem = () => videoStore.handleVideoData(videoId.value);
+    const isBtnDisabled = () => isLoading || videoId.value.length < 32;
+
+    watch(
+      () => videoStore.videoList,
+      () => {
+        videoId.value = '';
+      },
+      { deep: false }
+    );
+
+    return {
+      videoId,
+      isLoading,
+      isBtnDisabled,
+      createVideoItem
+    };
+  }
 });
 </script>

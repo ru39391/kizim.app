@@ -4,7 +4,8 @@ import {
   RUTUBE_API_URL,
   VIDEOLIST_API_URL,
   DATA_IS_LOADING_MESS,
-  POSTS_ERROR_MESS
+  POSTS_ERROR_MESS,
+  POSTS_WARNING_MESS
 } from '../../utils/constants';
 
 import type { TVideoData } from '../../utils/types';
@@ -37,12 +38,70 @@ const useVideoStore = defineStore('video', () => {
         return;
       }
 
-      const { data } = await response.json();
+      const { data, success } = await response.json();
 
-      setVideoList(data);
+      if([...videoList.value].length === 0 && success) {
+        setVideoList(data);
+      }
     } catch (error) {
       setAlertMessage(POSTS_ERROR_MESS);
-      console.error(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createVideoItem = async (payload: TVideoData) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        VIDEOLIST_API_URL,
+        {
+          method: 'POST',
+          body: JSON.stringify([payload])
+        }
+      );
+
+      if(!response.ok) {
+        setAlertMessage(POSTS_ERROR_MESS);
+        return;
+      }
+
+      const { data, success } = await response.json();
+
+      if(success) {
+        setVideoList(data.succeed);
+      } else {
+        setAlertMessage(POSTS_WARNING_MESS);
+      }
+    } catch (error) {
+      setAlertMessage(POSTS_ERROR_MESS);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVideoData = async (id: string) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${RUTUBE_API_URL}/${id}`);
+
+      if(!response.ok) {
+        setAlertMessage(POSTS_ERROR_MESS);
+        return;
+      }
+
+      const { data, success } = await response.json();
+
+      if(success) {
+        await createVideoItem(data);
+      }
+    } catch (error) {
+      setAlertMessage(POSTS_ERROR_MESS);
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -53,7 +112,8 @@ const useVideoStore = defineStore('video', () => {
     alertMessage,
     videoList,
     setLoading,
-    fetchVideoList
+    fetchVideoList,
+    handleVideoData
   };
 });
 
