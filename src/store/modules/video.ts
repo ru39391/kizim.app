@@ -4,8 +4,10 @@ import {
   RUTUBE_API_URL,
   VIDEOLIST_API_URL,
   DATA_IS_LOADING_MESS,
+  LENGTH_ERROR_MESS,
   POSTS_ERROR_MESS,
-  POSTS_WARNING_MESS
+  POSTS_WARNING_MESS,
+  VIDEO_WARNING_MESS
 } from '../../utils/constants';
 
 import type { TVideoData } from '../../utils/types';
@@ -19,12 +21,12 @@ const useVideoStore = defineStore('video', () => {
     isLoading.value = value;
   };
 
-  const setAlertMessage = (value: string) => {
+  const setAlertMessage = (value: string = '') => {
     alertMessage.value = value;
   };
 
   const setVideoList = (arr: TVideoData[]) => {
-    videoList.value = [...videoList.value, ...arr];
+    videoList.value = [ ...arr, ...videoList.value];
   };
 
   const fetchVideoList = async () => {
@@ -41,7 +43,8 @@ const useVideoStore = defineStore('video', () => {
       const { data, success } = await response.json();
 
       if([...videoList.value].length === 0 && success) {
-        setVideoList(data);
+        setVideoList(data.reverse());
+        setAlertMessage();
       }
     } catch (error) {
       setAlertMessage(POSTS_ERROR_MESS);
@@ -72,6 +75,7 @@ const useVideoStore = defineStore('video', () => {
 
       if(success) {
         setVideoList(data.succeed);
+        setAlertMessage();
       } else {
         setAlertMessage(POSTS_WARNING_MESS);
       }
@@ -98,6 +102,7 @@ const useVideoStore = defineStore('video', () => {
 
       if(success) {
         await createVideoItem(data);
+        setAlertMessage();
       }
     } catch (error) {
       setAlertMessage(POSTS_ERROR_MESS);
@@ -107,13 +112,26 @@ const useVideoStore = defineStore('video', () => {
     }
   };
 
+  const isVideoDataExist = (id: string) => {
+    console.log(id.length);
+    const isDataExist = Boolean([...videoList.value].find(({ item_id }) => item_id === id));
+    const warningMess = id.length === 32
+      ? isDataExist ? VIDEO_WARNING_MESS : ''
+      : LENGTH_ERROR_MESS;
+
+    setAlertMessage(id.length === 0 ? '' : warningMess);
+
+    return isDataExist;
+  }
+
   return {
     isLoading,
     alertMessage,
     videoList,
     setLoading,
     fetchVideoList,
-    handleVideoData
+    handleVideoData,
+    isVideoDataExist
   };
 });
 

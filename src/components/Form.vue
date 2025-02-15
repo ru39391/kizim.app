@@ -1,5 +1,5 @@
 <template>
-  <div class="input-group mb-3">
+  <div class="input-group">
     <input
       v-model="videoId"
       type="text"
@@ -13,7 +13,7 @@
       class="btn btn-primary"
       type="button"
       id="button"
-      :disabled="isLoading"
+      :disabled="isBtnDisabled || isLoading"
       @click="createVideoItem"
     >
       Сохранить видео
@@ -30,14 +30,25 @@ export default defineComponent({
 
   setup() {
     const videoId = ref('');
+    const isBtnDisabled = ref(true);
     const videoStore = useVideoStore();
     const isLoading = computed(() => videoStore.isLoading);
 
     const createVideoItem = () => videoStore.handleVideoData(videoId.value);
-    const isBtnDisabled = () => isLoading || videoId.value.length < 32;
+    const setBtnDisabled = (value: string) => {
+      isBtnDisabled.value = videoStore.isVideoDataExist(value) || !(value.length === 32);
+    };
 
     watch(
-      () => videoStore.videoList,
+      () => videoId.value,
+      (value) => {
+        setBtnDisabled(value);
+      },
+      { deep: false }
+    );
+
+    watch(
+      () => isLoading.value,
       () => {
         videoId.value = '';
       },

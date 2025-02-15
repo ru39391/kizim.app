@@ -1,7 +1,10 @@
 <template>
   <Layout>
     <template #content>
-      <div class="row"><div class="col-md-4 mb-3"><Form /></div></div>
+      <div class="row align-items-center mb-4">
+        <div class="col-md-4"><Form /></div>
+        <div class="col-md-4 text-nowrap text-body-secondary">{{ alertMessage }}</div>
+      </div>
       <div
         v-if="videoList.length > 0"
         class="row"
@@ -41,13 +44,15 @@ export default defineComponent({
   setup() {
     const videoStore = useVideoStore();
     const videoList = computed(() => videoStore.videoList);
+    const alertMessage = computed(() => videoStore.alertMessage);
 
     const handleVideo = () => {
       console.log('97de0bdec143450d09e257df4721ca66');
     };
 
     return {
-      videoList
+      videoList,
+      alertMessage
     }
   }
 });
