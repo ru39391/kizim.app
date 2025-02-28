@@ -30,6 +30,12 @@ const useVideoStore = defineStore('video', () => {
     videoList.value = [ ...arr, ...videoList.value];
   };
 
+  const updateVideoList = (arr: TVideoData[]) => {
+    const data = [ ...arr][0];
+
+    videoList.value = [...videoList.value].map(item => item.item_id === data.item_id ? data : item);
+  };
+
   const fetchVideoList = async () => {
     setLoading(true);
 
@@ -108,7 +114,7 @@ const useVideoStore = defineStore('video', () => {
       const { data, success } = await response.json();
 
       if(success) {
-        setVideoList(data.succeed);
+        updateVideoList(data.succeed);
         setAlertMessage();
       } else {
         setAlertMessage(POSTS_WARNING_MESS);
