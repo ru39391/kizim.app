@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import {
+  CREATEDON_KEY,
   RUTUBE_API_URL,
   VIDEOLIST_API_URL,
   DATA_IS_LOADING_MESS,
@@ -87,6 +88,39 @@ const useVideoStore = defineStore('video', () => {
     }
   };
 
+  const updateVideoItem = async (payload: TVideoData[]) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        VIDEOLIST_API_URL,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if(!response.ok) {
+        setAlertMessage(POSTS_ERROR_MESS);
+        return;
+      }
+
+      const { data, success } = await response.json();
+
+      if(success) {
+        setVideoList(data.succeed);
+        setAlertMessage();
+      } else {
+        setAlertMessage(POSTS_WARNING_MESS);
+      }
+    } catch (error) {
+      setAlertMessage(POSTS_ERROR_MESS);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleVideoData = async (id: string) => {
     setLoading(true);
 
@@ -112,16 +146,68 @@ const useVideoStore = defineStore('video', () => {
     }
   };
 
-  const isVideoDataExist = (id: string) => {
-    console.log(id.length);
-    const isDataExist = Boolean([...videoList.value].find(({ item_id }) => item_id === id));
+  const isVideoDataExist = (id: string, isMessVisible: boolean = true) => {
+    const data = [...videoList.value].find(({ item_id }) => item_id === id);
+    const isDataExist = Boolean(data);
     const warningMess = id.length === 32
       ? isDataExist ? VIDEO_WARNING_MESS : ''
       : LENGTH_ERROR_MESS;
 
-    setAlertMessage(id.length === 0 ? '' : warningMess);
+    if(isMessVisible) {
+      setAlertMessage(id.length === 0 ? '' : warningMess);
+    }
 
-    return isDataExist;
+    return {
+      data,
+      isDataExist
+    };
+  }
+
+  const checkVideoUpdate = async (item_id: string) => {
+    const { data: currData } = isVideoDataExist(item_id, false);
+
+    setLoading(true);
+
+    if(!currData) {
+      handleVideoData(item_id);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${RUTUBE_API_URL}/${item_id}`);
+
+      if(!response.ok) {
+        setAlertMessage(POSTS_ERROR_MESS);
+        return;
+      }
+
+      const { data, success } = await response.json();
+
+      if(!success) {
+        setAlertMessage(POSTS_ERROR_MESS);
+        return;
+      }
+
+      const updatedData = Object.keys(data).reduce(
+        (acc, key, index) => Object.values(data)[index] === currData[key] ? acc : {...acc, [key]: Object.values(data)[index]}, {}
+      );
+      const isDataUpdated = Object.keys(updatedData).length === 1 && Boolean(updatedData[CREATEDON_KEY]);
+
+      if(isDataUpdated) {
+        setAlertMessage('Ничего не изменилось');
+      } else {
+        await updateVideoItem([{
+          ...currData,
+          ...updatedData
+        }]);
+        setAlertMessage();
+      }
+    } catch (error) {
+      setAlertMessage(POSTS_ERROR_MESS);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return {
@@ -131,7 +217,8 @@ const useVideoStore = defineStore('video', () => {
     setLoading,
     fetchVideoList,
     handleVideoData,
-    isVideoDataExist
+    isVideoDataExist,
+    checkVideoUpdate
   };
 });
 

@@ -19,6 +19,14 @@
                 {{ title }}
               </p>
               <p class="card-text"><small class="text-body-secondary">{{ createdon }}</small></p>
+              <button
+                class="btn btn-link card-text p-0"
+                type="button"
+                :disabled="isLoading"
+                @click="checkVideoUpdate"
+              >
+                <small class="text-body-secondary">Обновить</small>
+              </button>
             </div>
             <div class="d-flex align-items-center">
               <div class="col-md-2 me-3"><img class="img-fluid rounded-circle" :src="channel_img" :alt="channel" /></div>
@@ -32,12 +40,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { useVideoStore } from '../store/modules/video';
 
 export default defineComponent({
   name: 'Card',
 
   props: {
+    id: {
+      type: Number,
+      required: true,
+    },
     item_id: {
       type: String,
       required: true,
@@ -66,6 +79,18 @@ export default defineComponent({
       type: String,
       required: false,
     },
+  },
+
+  setup(props) {
+    const videoStore = useVideoStore();
+    const isLoading = computed(() => videoStore.isLoading);
+
+    const checkVideoUpdate = () => videoStore.checkVideoUpdate(props.item_id);
+
+    return {
+      isLoading,
+      checkVideoUpdate
+    };
   }
 });
 </script>

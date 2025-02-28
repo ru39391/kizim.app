@@ -36,7 +36,8 @@ export default defineComponent({
 
     const createVideoItem = () => videoStore.handleVideoData(videoId.value);
     const setBtnDisabled = (value: string) => {
-      isBtnDisabled.value = videoStore.isVideoDataExist(value) || !(value.length === 32);
+      const { isDataExist } = videoStore.isVideoDataExist(value);
+      isBtnDisabled.value = isDataExist || !(value.length === 32);
     };
 
     watch(

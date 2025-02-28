@@ -11,7 +11,8 @@
       >
         <Card
           v-for="item in videoList"
-          :key="item.id"
+          :key="item.item_id"
+          :id="item.id"
           :item_id="item.item_id"
           :title="item.title"
           :thumbnail="item.thumbnail"
@@ -45,10 +46,6 @@ export default defineComponent({
     const videoStore = useVideoStore();
     const videoList = computed(() => videoStore.videoList);
     const alertMessage = computed(() => videoStore.alertMessage);
-
-    const handleVideo = () => {
-      console.log('97de0bdec143450d09e257df4721ca66');
-    };
 
     return {
       videoList,
