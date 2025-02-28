@@ -11,7 +11,7 @@ import {
   VIDEO_WARNING_MESS
 } from '../../utils/constants';
 
-import type { TVideoData } from '../../utils/types';
+import type { TVideoData, TVideoDataKeys } from '../../utils/types';
 
 const useVideoStore = defineStore('video', () => {
   const isLoading = ref<boolean>(true);
@@ -189,7 +189,7 @@ const useVideoStore = defineStore('video', () => {
       }
 
       const updatedData = Object.keys(data).reduce(
-        (acc, key, index) => Object.values(data)[index] === currData[key] ? acc : {...acc, [key]: Object.values(data)[index]}, {}
+        (acc, key, index) => Object.values(data)[index] === currData[key as TVideoDataKeys] ? acc : {...acc, [key]: Object.values(data)[index]}, {} as TVideoData
       );
       const isDataUpdated = Object.keys(updatedData).length === 1 && Boolean(updatedData[CREATEDON_KEY]);
 

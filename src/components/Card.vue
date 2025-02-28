@@ -47,10 +47,6 @@ export default defineComponent({
   name: 'Card',
 
   props: {
-    id: {
-      type: Number,
-      required: true,
-    },
     item_id: {
       type: String,
       required: true,

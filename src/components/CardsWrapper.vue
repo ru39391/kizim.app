@@ -12,7 +12,6 @@
         <Card
           v-for="item in videoList"
           :key="item.item_id"
-          :id="item.id"
           :item_id="item.item_id"
           :title="item.title"
           :thumbnail="item.thumbnail"
