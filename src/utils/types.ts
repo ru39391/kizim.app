@@ -6,6 +6,7 @@ export type TVideoData = {
   channel: string;
   channel_id: number;
   channel_img: string;
+  cover: string;
 };
 
 export type TVideoDataKeys = keyof TVideoData;
