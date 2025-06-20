@@ -14,7 +14,7 @@
           :key="item.item_id"
           :item_id="item.item_id"
           :title="item.title"
-          :thumbnail="item.thumbnail"
+          :thumbnail="item.cover"
           :createdon="item.createdon"
           :channel="item.channel"
           :channel_id="item.channel_id.toString()"

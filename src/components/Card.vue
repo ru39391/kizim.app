@@ -15,7 +15,13 @@
           <div class="card-body d-flex flex-column h-100">
             <div class="flex-grow-1 mb-3">
               <p class="card-text mb-2">
-                <small class="text-body-secondary">{{ item_id }}</small><br />
+                <button
+                  class="btn btn-link text-body-secondary p-0"
+                  type="button"
+                  @click="copyVideoId"
+                >
+                  {{ item_id }}
+                </button><br />
                 {{ title }}
               </p>
               <p class="card-text"><small class="text-body-secondary">{{ createdon }}</small></p>
@@ -83,8 +89,21 @@ export default defineComponent({
 
     const checkVideoUpdate = () => videoStore.checkVideoUpdate(props.item_id);
 
+    const copyVideoId = async () => {
+      const { item_id: value } = props;
+
+      try {
+        await navigator.clipboard.writeText(value);
+
+        console.log({ value });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     return {
       isLoading,
+      copyVideoId,
       checkVideoUpdate
     };
   }
